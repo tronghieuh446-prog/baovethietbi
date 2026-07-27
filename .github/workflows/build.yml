@@ -1,0 +1,37 @@
+name: Build IPA
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install Cordova
+        run: npm install -g cordova
+      - name: Create Project
+        run: |
+          cordova create app com.dudhdudu.securevault "Secure Vault Pro"
+          cp index.html app/www/index.html
+          cp config.xml app/config.xml
+      - name: Add iOS
+        run: |
+          cd app
+          cordova platform add ios
+      - name: Build
+        run: |
+          cd app
+          cordova build ios --emulator --debug
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: SecureVaultPro
+          path: app/platforms/ios/build/emulator/*.app
+          if-no-files-found: warn
