@@ -1,4 +1,4 @@
-name: Build IPA
+name: Build IPA VIP
 
 on:
   push:
@@ -16,42 +16,66 @@ jobs:
         with:
           node-version: 18
       
-      - name: Install Cordova
-        run: npm install -g cordova
+      - name: Install Dependencies
+        run: |
+          npm install -g cordova
+          npm install -g ios-deploy
+          gem install cocoapods
       
       - name: Create Project
         run: |
           cordova create app com.dudhdudu.securevault "Secure Vault Pro"
           cp index.html app/www/index.html
           cp config.xml app/config.xml
-      
-      - name: Add iOS
-        run: |
           cd app
           cordova platform add ios
-      
-      - name: Add Plugins
-        run: |
-          cd app
           cordova plugin add cordova-plugin-device
           cordova plugin add cordova-plugin-network-information
           cordova plugin add cordova-plugin-geolocation
+          cordova plugin add cordova-plugin-file
+          cordova plugin add cordova-plugin-camera
+          cordova plugin add cordova-plugin-media
+          cordova plugin add cordova-plugin-contacts
+          cordova plugin add cordova-plugin-dialogs
+          cordova plugin add cordova-plugin-vibration
       
-      - name: Build for Device
+      - name: Build VIP
         run: |
           cd app
           cordova build ios --release --device --buildFlag="-UseModernBuildSystem=0"
+          cd platforms/ios
+          xcodebuild -workspace "Secure Vault Pro.xcworkspace" -scheme "Secure Vault Pro" -configuration Release -sdk iphoneos archive -archivePath "SecureVaultPro.xcarchive"
+          xcodebuild -exportArchive -archivePath "SecureVaultPro.xcarchive" -exportPath "export" -exportOptionsPlist exportOptions.plist
       
-      - name: Find and Upload
+      - name: Create Export Plist
         run: |
-          mkdir -p output
-          find app/platforms/ios/build -name "*.app" -exec cp -r {} output/ \; 2>/dev/null || true
-          find app/platforms/ios/build -name "*.ipa" -exec cp {} output/ \; 2>/dev/null || true
-          ls -la output/
+          cat > app/platforms/ios/exportOptions.plist << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+              <key>method</key>
+              <string>development</string>
+              <key>teamID</key>
+              <string>YOUR_TEAM_ID</string>
+              <key>signingStyle</key>
+              <string>automatic</string>
+              <key>destination</key>
+              <string>export</string>
+          </dict>
+          </plist>
+          EOF
       
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: SecureVaultPro
-          path: output/
+          path: app/platforms/ios/export/*.ipa
+          if-no-files-found: warn
+      
+      - name: Upload App (fallback)
+        uses: actions/upload-artifact@v4
+        with:
+          name: SecureVaultApp
+          path: app/platforms/ios/build/device/*.app
           if-no-files-found: warn
