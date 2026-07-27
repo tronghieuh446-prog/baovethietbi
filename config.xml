@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0" id="com.dudhdudu.securevault" version="4.0.0">
+    <name>Secure Vault Pro</name>
+    <description>Bảo vệ thiết bị tối ưu</description>
+    <author email="dudhdudu@secure.com" href="https://dudhdudu.com">Secure Team</author>
+    <content src="index.html" />
+    <access origin="*" />
+    <allow-navigation href="*" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <preference name="Orientation" value="portrait" />
+    <preference name="StatusBarStyle" value="lightcontent" />
+    <preference name="StatusBarBackgroundColor" value="#0a0a0a" />
+    <preference name="AutoHideSplashScreen" value="true" />
+    <preference name="SplashScreenDelay" value="1000" />
+    <preference name="BackgroundColor" value="#0a0a0a" />
+    <preference name="WKWebViewOnly" value="true" />
+    <platform name="ios">
+        <preference name="deployment-target" value="12.0" />
+        <preference name="SwiftVersion" value="5" />
+    </platform>
+</widget>
