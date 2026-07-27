@@ -1,4 +1,4 @@
-name: Build IPA VIP
+name: Build IPA
 
 on:
   push:
@@ -19,45 +19,17 @@ jobs:
       - name: Install Cordova
         run: npm install -g cordova
       
-      - name: Create Project
+      - name: Build App
         run: |
-          cordova create app com.dudhdudu.securevault "Secure Vault Pro"
+          cordova create app com.dudhdudu.securevault "SecureVault"
           cp index.html app/www/index.html
           cp config.xml app/config.xml
-      
-      - name: Add iOS
-        run: |
           cd app
           cordova platform add ios
-      
-      - name: Add Plugins
-        run: |
-          cd app
-          cordova plugin add cordova-plugin-device
-          cordova plugin add cordova-plugin-network-information
-          cordova plugin add cordova-plugin-geolocation
-      
-      - name: Fix Deployment Target
-        run: |
-          cd app
-          # Sửa deployment target từ 11.0 lên 12.0
-          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 11.0/IPHONEOS_DEPLOYMENT_TARGET = 12.0/g' platforms/ios/CordovaLib/CordovaLib.xcodeproj/project.pbxproj || true
-          sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = 11.0/IPHONEOS_DEPLOYMENT_TARGET = 12.0/g' platforms/ios/Secure\ Vault\ Pro.xcodeproj/project.pbxproj || true
-      
-      - name: Build Simulator (no signing needed)
-        run: |
-          cd app
-          cordova build ios --emulator --debug
-      
-      - name: Find and Upload
-        run: |
-          mkdir -p output
-          find app/platforms/ios/build -name "*.app" -exec cp -r {} output/ \; 2>/dev/null || true
-          ls -la output/
+          cordova build ios --emulator
       
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
-          name: SecureVaultPro
-          path: output/
-          if-no-files-found: warn
+          name: SecureVault
+          path: app/platforms/ios/build/emulator/*.app
